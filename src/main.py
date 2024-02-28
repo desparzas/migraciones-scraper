@@ -46,6 +46,24 @@ def get_captcha_text():
     captcha_text = captcha_text.upper()
     return captcha_text
 
+def fill_form(driver, numero_carnet, dia, mes, anio, captcha_text):
+
+    try:
+        input_numero_carnet = driver.find_element(By.ID, "ctl00_bodypage_txtnumerodoc")
+        select_dia = Select(driver.find_element(By.ID, "ctl00_bodypage_cbodia"))
+        select_mes = Select(driver.find_element(By.ID, "ctl00_bodypage_cbomes"))
+        select_anio = Select(driver.find_element(By.ID, "ctl00_bodypage_cboanio"))
+        input_captcha = driver.find_element(By.ID, "ctl00_bodypage_txtvalidator")
+        input_numero_carnet.send_keys(numero_carnet)
+        select_dia.select_by_value(dia)
+        select_mes.select_by_value(mes)
+        select_anio.select_by_value(anio)
+        input_captcha.send_keys(captcha_text)
+    except Exception as e:
+        print("Error al llenar el formulario:", e)
+        time.sleep(5)
+
+    print("Formulario llenado")
 def scrape_data (numero_carnet, dia, mes, anio):
     valid_form_response = False
     # Configuración de Chrome
@@ -62,6 +80,7 @@ def scrape_data (numero_carnet, dia, mes, anio):
         save_captcha_image(driver)
         captcha_text = get_captcha_text()
         print("'", captcha_text, "'", sep='')
+        fill_form(driver, numero_carnet, dia, mes, anio, captcha_text)
         valid_form_response = True
         time.sleep(5)
     
