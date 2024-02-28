@@ -16,12 +16,12 @@ IMG_SAVE_PATH = './src/temp/screenshot.png'
 
 def conectar(driver, url):
     conectado = False 
+    wait_page = WebDriverWait(driver, 10)
     while not conectado:
         try:
             driver.get(url)
-            print("Conectado a:", url)
-            driver.implicitly_wait(10)
-            driver.save_screenshot(IMG_SAVE_PATH)
+            wait_page.until(EC.presence_of_element_located((By.ID, "ctl00_bodypage_btnverificar")))
+            print("Página cargada")
             conectado = True
         except Exception as e:
             print("Error al conectar a la página:", e)
@@ -38,21 +38,35 @@ def save_captcha_image(driver):
         image_saved = True
     print("Imagen guardada")
 
+def get_captcha_text():
+    original = Image.open(IMG_SAVE_PATH)
+    captcha_text = pytesseract.image_to_string(original, config='--psm 6')
+    captcha_text = ''.join(e for e in captcha_text if e.isalnum())
+    captcha_text = captcha_text.replace(" ", "")
+    captcha_text = captcha_text.upper()
+    return captcha_text
+
 def scrape_data (numero_carnet, dia, mes, anio):
     valid_form_response = False
-
     # Configuración de Chrome
     options = webdriver.ChromeOptions()
     options.add_argument('--ignore-certificate-errors')
     options.add_argument('--incognito')
-    options.add_argument('--headless')
+    # options.add_argument('--headless')
     driver = webdriver.Chrome(options=options)
+    driver.implicitly_wait(10)
     driver.maximize_window()
 
     while not valid_form_response:
         conectar(driver, BASE_URL)
         save_captcha_image(driver)
+        captcha_text = get_captcha_text()
+        print("'", captcha_text, "'", sep='')
         valid_form_response = True
+        time.sleep(5)
+    
+    # Cerro la ventana
+    driver.quit()
 
 def main():
     numero_carnet = "001043328"
