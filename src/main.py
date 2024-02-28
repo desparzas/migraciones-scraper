@@ -122,7 +122,7 @@ def valid_form_response(driver):
     
 def get_captcha_text(img_filepath):
     original = Image.open(img_filepath)
-    captcha_text = pytesseract.image_to_string(original, config='--psm 7')
+    captcha_text = pytesseract.image_to_string(original, config='--psm 6')
     captcha_text = ''.join(e for e in captcha_text if e.isalnum())
     captcha_text = captcha_text.replace(" ", "")
     captcha_text = captcha_text.upper()
@@ -150,8 +150,6 @@ def save_data(driver):
         print('-----------------------------------------')
         print("Data RESPONSE: ", data)
         print('-----------------------------------------')
-
-
         with open('./src/data/data.json', 'w', encoding='utf-8') as file:
             json.dump(data, file, ensure_ascii=False, indent=4)
     except NoSuchElementException:
@@ -193,7 +191,6 @@ def scrape_data (numero_carnet, dia, mes, anio):
             captcha_text = get_captcha_text(IMG_SAVE_PATH)
             print("Texto del captcha de la imagen:", captcha_text)
             fill_form(driver, numero_carnet, dia, mes, anio, captcha_text)
-            print("Formulario llenado")
             if verificar_llenado(driver):
                 print("Formulario llenado correctamente")
                 send_form(driver)
